@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geopiano Digitale - I Poligoni</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts for Kids / Readable Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0fdf4;
+        }
+        h1, h2, h3, .font-fun {
+            font-family: 'Fredoka', cursive, sans-serif;
+        }
+        canvas {
+            touch-action: none;
+            user-select: none;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col text-slate-800">
+
+    <!-- Header -->
+    <header class="bg-emerald-600 text-white shadow-md sticky top-0 z-20">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="bg-white text-emerald-600 p-2.5 rounded-2xl shadow-sm text-2xl font-bold flex items-center justify-center w-12 h-12">
+                    <i class="fa-solid fa-shapes"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl sm:text-2xl font-bold tracking-wide leading-none">Geopiano Digitale</h1>
+                    <p class="text-xs text-emerald-100 mt-1">Matematica in Terza Primaria: Scopriamo i Poligoni!</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2 flex-wrap">
+                <!-- Grid Selection -->
+                <div class="bg-emerald-700/60 p-1.5 rounded-xl flex items-center gap-1 border border-emerald-500/40">
+                    <span class="text-xs font-semibold px-2 text-emerald-100 hidden sm:inline"><i class="fa-solid fa-border-all mr-1"></i>Griglia:</span>
+                    <button id="grid-5" onclick="setGridSize(5, 'square')" class="px-2.5 py-1 text-xs font-bold rounded-lg bg-white text-emerald-800 shadow-sm transition-all">5x5</button>
+                    <button id="grid-8" onclick="setGridSize(8, 'square')" class="px-2.5 py-1 text-xs font-bold rounded-lg hover:bg-emerald-500/50 text-white transition-all">8x8</button>
+                    <button id="grid-iso" onclick="setGridSize(6, 'isometric')" class="px-2.5 py-1 text-xs font-bold rounded-lg hover:bg-emerald-500/50 text-white transition-all">Isometrica</button>
+                </div>
+
+                <!-- Band Color Selection -->
+                <div class="bg-emerald-700/60 p-1.5 rounded-xl flex items-center gap-1 border border-emerald-500/40">
+                    <span class="text-xs font-semibold px-2 text-emerald-100 hidden sm:inline"><i class="fa-solid fa-palette mr-1"></i>Elastico:</span>
+                    <button onclick="setColor('#ef4444')" class="w-6 h-6 rounded-full bg-red-500 border-2 border-white focus:ring-2 ring-white hover:scale-110 transition-transform" title="Rosso"></button>
+                    <button onclick="setColor('#3b82f6')" class="w-6 h-6 rounded-full bg-blue-500 border-2 border-white focus:ring-2 ring-white hover:scale-110 transition-transform" title="Blu"></button>
+                    <button onclick="setColor('#10b981')" class="w-6 h-6 rounded-full bg-emerald-400 border-2 border-white focus:ring-2 ring-white hover:scale-110 transition-transform" title="Verde"></button>
+                    <button onclick="setColor('#f59e0b')" class="w-6 h-6 rounded-full bg-amber-500 border-2 border-white focus:ring-2 ring-white hover:scale-110 transition-transform" title="Arancione"></button>
+                    <button onclick="setColor('#8b5cf6')" class="w-6 h-6 rounded-full bg-purple-500 border-2 border-white focus:ring-2 ring-white hover:scale-110 transition-transform" title="Viola"></button>
+                </div>
+
+                <!-- Clear Canvas -->
+                <button onclick="resetBoard()" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-xl text-xs font-bold shadow-sm flex items-center gap-1.5 transition-all">
+                    <i class="fa-solid fa-rotate-left"></i>
+                    <span>Pulisci</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="max-w-7xl mx-auto w-full p-4 flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- Left Controls / Visual Options & Didactic Analysis (4 Columns) -->
+        <section class="lg:col-span-4 flex flex-col gap-4">
+
+            <!-- Mode Switcher Tabs -->
+            <div class="bg-white p-1.5 rounded-2xl shadow-sm border border-emerald-100 flex gap-1">
+                <button id="tab-free" onclick="switchTab('free')" class="flex-1 py-2 px-3 rounded-xl font-bold text-xs sm:text-sm text-center transition-all bg-emerald-600 text-white shadow-sm">
+                    <i class="fa-solid fa-hand-pointer mr-1.5"></i>Esplorazione Libera
+                </button>
+                <button id="tab-challenge" onclick="switchTab('challenge')" class="flex-1 py-2 px-3 rounded-xl font-bold text-xs sm:text-sm text-center transition-all text-slate-600 hover:bg-slate-100">
+                    <i class="fa-solid fa-trophy mr-1.5 text-amber-500"></i>Carte Sfida
+                </button>
+            </div>
+
+            <!-- Panel 1: Display Toggles -->
+            <div class="bg-white rounded-2xl p-4 shadow-sm border border-emerald-100 space-y-3">
+                <h3 class="font-fun text-base font-bold text-emerald-800 flex items-center gap-2">
+                    <i class="fa-solid fa-eye text-emerald-600"></i> Mostra nel Geopiano
+                </h3>
+                
+                <div class="grid grid-cols-2 gap-2 text-xs font-semibold">
+                    <label class="flex items-center gap-2 p-2 bg-slate-50 hover:bg-emerald-50 rounded-xl cursor-pointer transition-colors border border-slate-100">
+                        <input type="checkbox" id="toggle-vertices" checked onchange="redraw()" class="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500">
+                        <span class="text-slate-700"><i class="fa-solid fa-circle text-blue-500 text-[10px] mr-1"></i>Vertici (Punti)</span>
+                    </label>
+
+                    <label class="flex items-center gap-2 p-2 bg-slate-50 hover:bg-emerald-50 rounded-xl cursor-pointer transition-colors border border-slate-100">
+                        <input type="checkbox" id="toggle-sides" checked onchange="redraw()" class="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500">
+                        <span class="text-slate-700"><i class="fa-solid fa-ruler-horizontal text-emerald-500 mr-1"></i>Lati & Misure</span>
+                    </label>
+
+                    <label class="flex items-center gap-2 p-2 bg-slate-50 hover:bg-emerald-50 rounded-xl cursor-pointer transition-colors border border-slate-100">
+                        <input type="checkbox" id="toggle-angles" checked onchange="redraw()" class="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500">
+                        <span class="text-slate-700"><i class="fa-solid fa-vector-square text-amber-500 mr-1"></i>Angoli Retti</span>
+                    </label>
+
+                    <label class="flex items-center gap-2 p-2 bg-slate-50 hover:bg-emerald-50 rounded-xl cursor-pointer transition-colors border border-slate-100">
+                        <input type="checkbox" id="toggle-fill" checked onchange="redraw()" class="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500">
+                        <span class="text-slate-700"><i class="fa-solid fa-fill-drip text-purple-500 mr-1"></i>Regione Interna</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Panel 2: Live Polygon Analysis Box -->
+            <div class="bg-gradient-to-br from-emerald-500 to-teal-600 text-white rounded-2xl p-4 shadow-sm space-y-3">
+                <div class="flex items-center justify-between border-b border-emerald-400/40 pb-2">
+                    <h3 class="font-fun text-lg font-bold flex items-center gap-2">
+                        <i class="fa-solid fa-magnifying-glass font-normal"></i>
+                        <span>Analisi della Figura</span>
+                    </h3>
+                    <span id="shape-badge" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-white text-emerald-800 shadow-sm">
+                        Inizia a disegnare
+                    </span>
+                </div>
+
+                <!-- Status indicator -->
+                <div id="status-box" class="bg-white/10 backdrop-blur-md rounded-xl p-3 text-xs flex items-center gap-3">
+                    <div id="status-icon" class="text-xl text-yellow-300">
+                        <i class="fa-solid fa-info-circle"></i>
+                    </div>
+                    <div>
+                        <div id="status-title" class="font-bold text-sm text-white">Disegna una figura</div>
+                        <p id="status-desc" class="text-emerald-100">Clicca sui pioli del geopiano per posizionare gli elastici.</p>
+                    </div>
+                </div>
+
+                <!-- Stats Grid -->
+                <div class="grid grid-cols-2 gap-2 text-center pt-1">
+                    <div class="bg-white/10 rounded-xl p-2.5 border border-white/10">
+                        <div class="text-xs text-emerald-100 font-medium">Numero Lati</div>
+                        <div id="stat-sides" class="text-2xl font-black font-fun text-white">0</div>
+                    </div>
+                    <div class="bg-white/10 rounded-xl p-2.5 border border-white/10">
+                        <div class="text-xs text-emerald-100 font-medium">Numero Vertici</div>
+                        <div id="stat-vertices" class="text-2xl font-black font-fun text-white">0</div>
+                    </div>
+                    <div class="bg-white/10 rounded-xl p-2.5 border border-white/10">
+                        <div class="text-xs text-emerald-100 font-medium">Angoli Retti (90°)</div>
+                        <div id="stat-rights" class="text-2xl font-black font-fun text-amber-200">0</div>
+                    </div>
+                    <div class="bg-white/10 rounded-xl p-2.5 border border-white/10">
+                        <div class="text-xs text-emerald-100 font-medium">Perimetro (Unità)</div>
+                        <div id="stat-perimeter" class="text-2xl font-black font-fun text-white">-</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panel 3: Challenge Card View (Visible only when in Challenge Tab) -->
+            <div id="challenge-box" class="hidden bg-amber-50 border-2 border-amber-200 rounded-2xl p-4 shadow-sm space-y-3">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-amber-700 uppercase tracking-wider flex items-center gap-1">
+                        <i class="fa-solid fa-dice text-amber-600 text-sm"></i>
+                        <span>Sfida Estratta</span>
+                    </span>
+                    <button onclick="drawRandomChallenge()" class="bg-amber-200 hover:bg-amber-300 text-amber-900 text-xs font-bold px-3 py-1.5 rounded-xl transition-all flex items-center gap-1.5 shadow-sm active:scale-95">
+                        <i class="fa-solid fa-shuffle"></i>
+                        <span>Sorteggia altra sfida</span>
+                    </button>
+                </div>
+
+                <h4 id="challenge-title" class="font-fun text-base font-bold text-amber-900">Costruisci un Triangolo</h4>
+                <p id="challenge-desc" class="text-xs text-amber-800 leading-relaxed">
+                    Crea un poligono con 3 lati e 3 vertici cliccando sui punti del geopiano.
+                </p>
+
+                <div class="pt-2 flex items-center justify-between">
+                    <button onclick="checkChallenge()" class="bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold px-4 py-2 rounded-xl shadow-sm transition-all flex items-center gap-1.5">
+                        <i class="fa-solid fa-circle-check"></i>
+                        <span>Verifica risposta</span>
+                    </button>
+                    <span id="challenge-result" class="text-xs font-bold"></span>
+                </div>
+            </div>
+
+            <!-- User Quick Instructions -->
+            <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 text-xs text-slate-600 space-y-2">
+                <div class="font-bold text-slate-800 flex items-center gap-1.5 text-sm">
+                    <i class="fa-solid fa-lightbulb text-amber-500"></i> Come si usa il Geopiano?
+                </div>
+                <ul class="list-disc list-inside space-y-1 text-slate-600">
+                    <li><b>Aggiungi vertici:</b> Clicca su un piolo vuoto.</li>
+                    <li><b>Sposta vertici:</b> Trascina un vertice esistente.</li>
+                    <li><b>Crea nuovo vertice:</b> Trascina il centro di un segmento.</li>
+                    <li><b>Elimina vertice:</b> Fai doppio clic su un vertice.</li>
+                    <li><b>Chiudi poligono:</b> Clicca sul primo vertice o sul pulsante in basso.</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Right Viewport: Geoboard Interactive Canvas (8 Columns) -->
+        <section class="lg:col-span-8 flex flex-col gap-3">
+            <!-- Canvas Container Wrapper -->
+            <div class="bg-white rounded-3xl p-4 shadow-lg border-2 border-emerald-100 flex flex-col items-center justify-center relative overflow-hidden">
+                
+                <!-- Helper overlay toolbar on canvas top right -->
+                <div class="w-full flex items-center justify-between mb-2 px-2">
+                    <div class="flex items-center gap-2">
+                        <button id="btn-close-polygon" onclick="toggleClosePolygon()" class="bg-emerald-100 hover:bg-emerald-200 text-emerald-800 text-xs font-bold px-3 py-1.5 rounded-xl transition-all flex items-center gap-1.5">
+                            <i class="fa-solid fa-vector-square"></i>
+                            <span id="btn-close-text">Chiudi Poligono</span>
+                        </button>
+                        <button onclick="undoLastPoint()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-3 py-1.5 rounded-xl transition-all flex items-center gap-1.5">
+                            <i class="fa-solid fa-rotate-left"></i>
+                            <span>Annulla</span>
+                        </button>
+                    </div>
+
+                    <div class="text-xs font-bold text-slate-400 flex items-center gap-1">
+                        <i class="fa-solid fa-expand"></i>
+                        <span class="hidden sm:inline">Trascina gli elastici come in classe!</span>
+                    </div>
+                </div>
+
+                <!-- Interactive Canvas -->
+                <div class="w-full aspect-square max-w-[600px] relative flex items-center justify-center">
+                    <canvas id="geoboard" class="w-full h-full rounded-2xl bg-slate-50 cursor-crosshair border border-slate-200 shadow-inner"></canvas>
+                </div>
+
+                <!-- Custom Modal / Banner for feedback -->
+                <div id="feedback-toast" class="absolute bottom-6 bg-slate-900/90 text-white px-5 py-2.5 rounded-2xl text-xs font-bold shadow-xl transition-all duration-300 transform translate-y-20 opacity-0 flex items-center gap-2 backdrop-blur-sm pointer-events-none">
+                    <i id="toast-icon" class="fa-solid fa-circle-info text-emerald-400 text-base"></i>
+                    <span id="toast-message">Messaggio di prova</span>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-3 text-center text-xs text-slate-500">
+        <p>Geopiano Digitale Didattico per la Scuola Primaria • Progettato per l'apprendimento attivo della Geometria</p>
+    </footer>
+
+    <script>
+        // --- GEOBOARD APP STATE & GEOMETRY ENGINE ---
+        
+        const canvas = document.getElementById('geoboard');
+        const ctx = canvas.getContext('2d');
+
+        // Application State
+        let gridSize = 5; // default 5x5
+        let gridType = 'square'; // 'square' or 'isometric'
+        let currentColor = '#ef4444'; // Red elastic
+        let activeTab = 'free'; // 'free' or 'challenge'
+        
+        // Vertices of the current polygon (array of grid coordinates {gx, gy})
+        let points = []; 
+        let isClosed = false;
+
+        // Interaction state
+        let draggingIndex = -1; // Index of existing vertex being dragged
+        let draggingNewSegmentIndex = -1; // Index of segment from which a new vertex is pulled
+        let hoverPin = null; // Current hovered grid peg {gx, gy}
+        let currentMousePos = { x: 0, y: 0 };
+
+        // Grid pins list
+        let pins = [];
+
+        // Audio Context for sound effects
+        let audioCtx = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function playSnapSound() {
+            try {
+                initAudio();
+                if (!audioCtx) return;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.08);
+                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.08);
+            } catch(e){}
+        }
+
+        function playSuccessSound() {
+            try {
+                initAudio();
+                if (!audioCtx) return;
+                const now = audioCtx.currentTime;
+                const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+                notes.forEach((freq, idx) => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+                    gain.gain.setValueAtTime(0.2, now + idx * 0.08);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.2);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start(now + idx * 0.08);
+                    osc.stop(now + idx * 0.08 + 0.2);
+                });
+            } catch(e){}
+        }
+
+        // --- GRID SETUP & COORDINATE CONVERSIONS ---
+
+        function resizeCanvas() {
+            const rect = canvas.getBoundingClientRect();
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+            ctx.scale(dpr, dpr);
+            computePins();
+            redraw();
+        }
+
+        function computePins() {
+            pins = [];
+            const rect = canvas.getBoundingClientRect();
+            const width = rect.width;
+            const height = rect.height;
+
+            const padding = width * 0.12;
+            const usableWidth = width - 2 * padding;
+            const usableHeight = height - 2 * padding;
+
+            if (gridType === 'square') {
+                const stepX = usableWidth / (gridSize - 1);
+                const stepY = usableHeight / (gridSize - 1);
+                for (let gy = 0; gy < gridSize; gy++) {
+                    for (let gx = 0; gx < gridSize; gx++) {
+                        pins.push({
+                            gx: gx,
+                            gy: gy,
+                            x: padding + gx * stepX,
+                            y: padding + gy * stepY
+                        });
+                    }
+                }
+            } else if (gridType === 'isometric') {
+                const rows = gridSize + 1;
+                const cols = gridSize;
+                const stepY = usableHeight / (rows - 1);
+                const stepX = usableWidth / (cols - 0.5);
+
+                for (let gy = 0; gy < rows; gy++) {
+                    const offsetX = (gy % 2 === 1) ? stepX / 2 : 0;
+                    for (let gx = 0; gx < cols; gx++) {
+                        pins.push({
+                            gx: gx + (gy % 2 === 1 ? 0.5 : 0),
+                            gy: gy,
+                            x: padding + gx * stepX + offsetX,
+                            y: padding + gy * stepY
+                        });
+                    }
+                }
+            }
+        }
+
+        function findNearestPin(px, py, threshold = 35) {
+            let minDistance = Infinity;
+            let nearest = null;
+            for (let pin of pins) {
+                const dx = pin.x - px;
+                const dy = pin.y - py;
+                const dist = Math.hypot(dx, dy);
+                if (dist < minDistance && dist < threshold) {
+                    minDistance = dist;
+                    nearest = pin;
+                }
+            }
+            return nearest;
+        }
+
+        function gridToPixel(gx, gy) {
+            const found = pins.find(p => Math.abs(p.gx - gx) < 0.01 && Math.abs(p.gy - gy) < 0.01);
+            if (found) return { x: found.x, y: found.y };
+            // Fallback estimation
+            return { x: 0, y: 0 };
+        }
+
+        // --- DRAWING LOGIC ---
+
+        function redraw() {
+            const rect = canvas.getBoundingClientRect();
+            ctx.clearRect(0, 0, rect.width, rect.height);
+
+            // Toggles
+            const showVertices = document.getElementById('toggle-vertices').checked;
+            const showSides = document.getElementById('toggle-sides').checked;
+            const showAngles = document.getElementById('toggle-angles').checked;
+            const showFill = document.getElementById('toggle-fill').checked;
+
+            // 1. Draw Grid Connections (subtle background grid lines)
+            ctx.strokeStyle = '#e2e8f0';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            if (gridType === 'square') {
+                for (let i = 0; i < gridSize; i++) {
+                    const p1 = pins.find(p => p.gx === i && p.gy === 0);
+                    const p2 = pins.find(p => p.gx === i && p.gy === gridSize - 1);
+                    if (p1 && p2) {
+                        ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y);
+                    }
+                    const p3 = pins.find(p => p.gx === 0 && p.gy === i);
+                    const p4 = pins.find(p => p.gx === gridSize - 1 && p.gy === i);
+                    if (p3 && p4) {
+                        ctx.moveTo(p3.x, p3.y); ctx.lineTo(p4.x, p4.y);
+                    }
+                }
+            }
+            ctx.stroke();
+
+            // 2. Draw Polygon Fill if closed
+            if (points.length >= 3 && isClosed && showFill) {
+                ctx.beginPath();
+                const p0 = gridToPixel(points[0].gx, points[0].gy);
+                ctx.moveTo(p0.x, p0.y);
+                for (let i = 1; i < points.length; i++) {
+                    const p = gridToPixel(points[i].gx, points[i].gy);
+                    ctx.lineTo(p.x, p.y);
+                }
+                ctx.closePath();
+                ctx.fillStyle = currentColor + '25'; // 15% opacity tint
+                ctx.fill();
+            }
+
+            // 3. Draw Polygon Edges (Elastic Band Look)
+            if (points.length > 0) {
+                ctx.strokeStyle = currentColor;
+                ctx.lineWidth = 6;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+
+                ctx.beginPath();
+                const p0 = gridToPixel(points[0].gx, points[0].gy);
+                ctx.moveTo(p0.x, p0.y);
+
+                for (let i = 1; i < points.length; i++) {
+                    const p = gridToPixel(points[i].gx, points[i].gy);
+                    ctx.lineTo(p.x, p.y);
+                }
+
+                if (isClosed) {
+                    ctx.closePath();
+                }
+                ctx.stroke();
+
+                // Inner highlight for 3D band effect
+                ctx.strokeStyle = '#ffffff88';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+
+            // Draw line to current hover position when actively drawing open line
+            if (!isClosed && points.length > 0 && draggingIndex === -1 && draggingNewSegmentIndex === -1) {
+                const lastPoint = gridToPixel(points[points.length - 1].gx, points[points.length - 1].gy);
+                ctx.strokeStyle = currentColor + '88';
+                ctx.lineWidth = 4;
+                ctx.setLineDash([6, 6]);
+                ctx.beginPath();
+                ctx.moveTo(lastPoint.x, lastPoint.y);
+                ctx.lineTo(currentMousePos.x, currentMousePos.y);
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+
+            // 4. Right Angle Markers & Side Length Indicators
+            if (isClosed && points.length >= 3) {
+                const analysis = analyzePolygon();
+
+                // Draw Angle Markers
+                if (showAngles && analysis.rightAnglesList.length > 0) {
+                    analysis.rightAnglesList.forEach(idx => {
+                        const prev = gridToPixel(points[(idx - 1 + points.length) % points.length].gx, points[(idx - 1 + points.length) % points.length].gy);
+                        const curr = gridToPixel(points[idx].gx, points[idx].gy);
+                        const next = gridToPixel(points[(idx + 1) % points.length].gx, points[(idx + 1) % points.length].gy);
+
+                        drawRightAngleMarker(prev, curr, next);
+                    });
+                }
+
+                // Draw Side Length Labels
+                if (showSides) {
+                    for (let i = 0; i < points.length; i++) {
+                        const pA = gridToPixel(points[i].gx, points[i].gy);
+                        const pB = gridToPixel(points[(i + 1) % points.length].gx, points[(i + 1) % points.length].gy);
+                        
+                        // Calculate grid distance
+                        const dx = Math.abs(points[i].gx - points[(i + 1) % points.length].gx);
+                        const dy = Math.abs(points[i].gy - points[(i + 1) % points.length].gy);
+                        const gridLen = Math.hypot(dx, dy);
+
+                        // Midpoint
+                        const mx = (pA.x + pB.x) / 2;
+                        const my = (pA.y + pB.y) / 2;
+
+                        // Badge
+                        ctx.fillStyle = '#1e293b';
+                        ctx.font = 'bold 11px Fredoka, sans-serif';
+                        const text = gridLen % 1 === 0 ? gridLen.toString() : gridLen.toFixed(1);
+                        const tw = ctx.measureText(text).width + 8;
+                        
+                        ctx.beginPath();
+                        ctx.roundRect(mx - tw/2, my - 9, tw, 18, 6);
+                        ctx.fillStyle = 'white';
+                        ctx.shadowColor = 'rgba(0,0,0,0.1)';
+                        ctx.shadowBlur = 4;
+                        ctx.fill();
+                        ctx.strokeStyle = '#cbd5e1';
+                        ctx.lineWidth = 1;
+                        ctx.stroke();
+                        ctx.shadowBlur = 0;
+
+                        ctx.fillStyle = '#334155';
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText(text, mx, my);
+                    }
+                }
+            }
+
+            // 5. Draw Pins (Geoboard Pegs)
+            for (let pin of pins) {
+                const isVertex = points.some(p => Math.abs(p.gx - pin.gx) < 0.01 && Math.abs(p.gy - pin.gy) < 0.01);
+                const isHovered = hoverPin && hoverPin.gx === pin.gx && hoverPin.gy === pin.gy;
+
+                ctx.beginPath();
+                ctx.arc(pin.x, pin.y, isHovered ? 8 : 6, 0, Math.PI * 2);
+                
+                if (isHovered) {
+                    ctx.fillStyle = '#f59e0b'; // Highlight color
+                } else if (isVertex && showVertices) {
+                    ctx.fillStyle = '#2563eb'; // Blue vertex
+                } else {
+                    ctx.fillStyle = '#64748b'; // Slate peg
+                }
+                ctx.fill();
+
+                // Peg top shine
+                ctx.beginPath();
+                ctx.arc(pin.x - 1.5, pin.y - 1.5, isHovered ? 3 : 2, 0, Math.PI * 2);
+                ctx.fillStyle = '#ffffffaa';
+                ctx.fill();
+            }
+
+            // Update stats & UI text
+            updateStatsUI();
+        }
+
+        function drawRightAngleMarker(pPrev, pCurr, pNext) {
+            const size = 14;
+            const v1 = { x: pPrev.x - pCurr.x, y: pPrev.y - pCurr.y };
+            const v2 = { x: pNext.x - pCurr.x, y: pNext.y - pCurr.y };
+            
+            const len1 = Math.hypot(v1.x, v1.y);
+            const len2 = Math.hypot(v2.x, v2.y);
+            if (len1 === 0 || len2 === 0) return;
+
+            const u1 = { x: (v1.x / len1) * size, y: (v1.y / len1) * size };
+            const u2 = { x: (v2.x / len2) * size, y: (v2.y / len2) * size };
+
+            const pCorner = { x: pCurr.x + u1.x + u2.x, y: pCurr.y + u1.y + u2.y };
+
+            ctx.beginPath();
+            ctx.moveTo(pCurr.x + u1.x, pCurr.y + u1.y);
+            ctx.lineTo(pCorner.x, pCorner.y);
+            ctx.lineTo(pCurr.x + u2.x, pCurr.y + u2.y);
+            ctx.strokeStyle = '#f59e0b';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            ctx.fillStyle = '#fef3c7';
+            ctx.beginPath();
+            ctx.moveTo(pCurr.x, pCurr.y);
+            ctx.lineTo(pCurr.x + u1.x, pCurr.y + u1.y);
+            ctx.lineTo(pCorner.x, pCorner.y);
+            ctx.lineTo(pCurr.x + u2.x, pCurr.y + u2.y);
+            ctx.closePath();
+            ctx.fillStyle = 'rgba(245, 158, 11, 0.25)';
+            ctx.fill();
+        }
+
+        // --- POLYGON GEOMETRY ANALYSIS ---
+
+        function analyzePolygon() {
+            const count = points.length;
+            if (count < 3 || !isClosed) {
+                return {
+                    isValidPolygon: false,
+                    isSelfIntersecting: checkSelfIntersection(),
+                    sides: count,
+                    vertices: count,
+                    perimeter: 0,
+                    area: 0,
+                    rightAnglesCount: 0,
+                    rightAnglesList: [],
+                    typeName: count < 3 ? 'Linea' : 'Spezzata Aperta'
+                };
+            }
+
+            const isSelfIntersecting = checkSelfIntersection();
+            
+            // Calculate perimeter (in grid units)
+            let perimeter = 0;
+            for (let i = 0; i < count; i++) {
+                const pA = points[i];
+                const pB = points[(i + 1) % count];
+                perimeter += Math.hypot(pA.gx - pB.gx, pA.gy - pB.gy);
+            }
+
+            // Calculate Area via Shoelace Formula
+            let areaSum = 0;
+            for (let i = 0; i < count; i++) {
+                const pA = points[i];
+                const pB = points[(i + 1) % count];
+                areaSum += (pA.gx * pB.gy) - (pB.gx * pA.gy);
+            }
+            const area = Math.abs(areaSum) / 2;
+
+            // Find Right Angles (90 deg)
+            const rightAnglesList = [];
+            for (let i = 0; i < count; i++) {
+                const prev = points[(i - 1 + count) % count];
+                const curr = points[i];
+                const next = points[(i + 1) % count];
+
+                const v1 = { x: prev.gx - curr.gx, y: prev.gy - curr.gy };
+                const v2 = { x: next.gx - curr.gx, y: next.gy - curr.gy };
+
+                const dot = v1.x * v2.x + v1.y * v2.y;
+                if (Math.abs(dot) < 0.001) { // Perpendicular
+                    rightAnglesList.push(i);
+                }
+            }
+
+            // Determine Polygon Naming
+            let typeName = 'Poligono';
+            if (!isSelfIntersecting) {
+                if (count === 3) typeName = 'Triangolo';
+                else if (count === 4) typeName = 'Quadrilatero';
+                else if (count === 5) typeName = 'Pentagono';
+                else if (count === 6) typeName = 'Esagono';
+                else if (count === 7) typeName = 'Ettagono';
+                else if (count === 8) typeName = 'Ottagono';
+                else typeName = `Poligono (${count} Lati)`;
+            } else {
+                typeName = 'Linea Intrecciata';
+            }
+
+            return {
+                isValidPolygon: !isSelfIntersecting,
+                isSelfIntersecting: isSelfIntersecting,
+                sides: count,
+                vertices: count,
+                perimeter: perimeter,
+                area: area,
+                rightAnglesCount: rightAnglesList.length,
+                rightAnglesList: rightAnglesList,
+                typeName: typeName
+            };
+        }
+
+        // Helper: Segments intersection check
+        function checkSelfIntersection() {
+            const n = points.length;
+            if (n < 4) return false;
+
+            for (let i = 0; i < n; i++) {
+                const a1 = points[i];
+                const a2 = points[(i + 1) % n];
+
+                for (let j = i + 1; j < n; j++) {
+                    // Do not check adjacent segments
+                    if (Math.abs(i - j) <= 1 || (i === 0 && j === n - 1)) continue;
+
+                    const b1 = points[j];
+                    const b2 = points[(j + 1) % n];
+
+                    if (linesIntersect(a1, a2, b1, b2)) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        function linesIntersect(p1, p2, p3, p4) {
+            function ccw(A, B, C) {
+                return (C.gy - A.gy) * (B.gx - A.gx) > (B.gy - A.gy) * (C.gx - A.gx);
+            }
+            return (ccw(p1, p3, p4) !== ccw(p2, p3, p4)) && (ccw(p1, p2, p3) !== ccw(p1, p2, p4));
+        }
+
+        // Update Analysis UI Elements
+        function updateStatsUI() {
+            const analysis = analyzePolygon();
+
+            document.getElementById('stat-sides').textContent = points.length;
+            document.getElementById('stat-vertices').textContent = points.length;
+            document.getElementById('stat-rights').textContent = analysis.rightAnglesCount;
+            document.getElementById('stat-perimeter').textContent = isClosed ? (analysis.perimeter % 1 === 0 ? analysis.perimeter : analysis.perimeter.toFixed(1)) : '-';
+
+            const shapeBadge = document.getElementById('shape-badge');
+            const statusBox = document.getElementById('status-box');
+            const statusIcon = document.getElementById('status-icon');
+            const statusTitle = document.getElementById('status-title');
+            const statusDesc = document.getElementById('status-desc');
+            const btnCloseText = document.getElementById('btn-close-text');
+
+            if (isClosed) {
+                btnCloseText.textContent = "Apri Poligono";
+            } else {
+                btnCloseText.textContent = "Chiudi Poligono";
+            }
+
+            if (points.length === 0) {
+                shapeBadge.textContent = "Geopiano Vuoto";
+                statusTitle.textContent = "Disegna una figura";
+                statusDesc.textContent = "Clicca sui pioli per posizionare il primo elastico.";
+                statusIcon.className = "text-xl text-amber-300 fa-solid fa-info-circle";
+            } else if (!isClosed) {
+                shapeBadge.textContent = "Linea Aperta";
+                statusTitle.textContent = "Spezzata Aperta";
+                statusDesc.textContent = "Clicca sull'ultimo o sul primo punto per chiudere il poligono.";
+                statusIcon.className = "text-xl text-blue-300 fa-solid fa-route";
+            } else if (analysis.isSelfIntersecting) {
+                shapeBadge.textContent = "Figura Intrecciata";
+                statusTitle.textContent = "Attenzione! Linea Intrecciata";
+                statusDesc.textContent = "Un poligono non deve avere lati che si incrociano tra loro.";
+                statusIcon.className = "text-xl text-red-300 fa-solid fa-triangle-exclamation";
+            } else {
+                shapeBadge.textContent = analysis.typeName;
+                statusTitle.textContent = `${analysis.typeName} Valido ✅`;
+                statusDesc.textContent = `È un poligono chiuso con ${analysis.sides} lati e ${analysis.vertices} vertici.`;
+                statusIcon.className = "text-xl text-emerald-300 fa-solid fa-circle-check";
+            }
+        }
+
+        // --- INTERACTION EVENT HANDLERS ---
+
+        function getMousePos(e) {
+            const rect = canvas.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            return {
+                x: clientX - rect.left,
+                y: clientY - rect.top
+            };
+        }
+
+        canvas.addEventListener('mousedown', handlePointerDown);
+        canvas.addEventListener('mousemove', handlePointerMove);
+        window.addEventListener('mouseup', handlePointerUp);
+
+        canvas.addEventListener('touchstart', (e) => { e.preventDefault(); handlePointerDown(e); });
+        canvas.addEventListener('touchmove', (e) => { e.preventDefault(); handlePointerMove(e); });
+        window.addEventListener('touchend', (e) => { handlePointerUp(e); });
+
+        canvas.addEventListener('dblclick', handleDoubleClick);
+
+        function handlePointerDown(e) {
+            const pos = getMousePos(e);
+            const nearest = findNearestPin(pos.x, pos.y);
+
+            // Check if clicking existing vertex
+            if (nearest) {
+                const existingIdx = points.findIndex(p => Math.abs(p.gx - nearest.gx) < 0.01 && Math.abs(p.gy - nearest.gy) < 0.01);
+                if (existingIdx !== -1) {
+                    // Clicked on existing vertex
+                    if (!isClosed && existingIdx === 0 && points.length >= 3) {
+                        // Clicking start vertex closes polygon
+                        isClosed = true;
+                        playSnapSound();
+                        showToast("Poligono Chiuso!", "fa-vector-square");
+                    } else {
+                        // Start dragging this vertex
+                        draggingIndex = existingIdx;
+                    }
+                    redraw();
+                    return;
+                }
+            }
+
+            // Check if dragging mid-segment to create a new vertex (classic elastic pull)
+            if (isClosed && points.length >= 3) {
+                const segmentHitIdx = findNearestSegment(pos.x, pos.y);
+                if (segmentHitIdx !== -1) {
+                    // Insert new vertex in segment and start dragging it
+                    const targetPin = nearest || { gx: pos.x, gy: pos.y };
+                    points.splice(segmentHitIdx + 1, 0, { gx: targetPin.gx, gy: targetPin.gy });
+                    draggingIndex = segmentHitIdx + 1;
+                    playSnapSound();
+                    redraw();
+                    return;
+                }
+            }
+
+            // Otherwise, if open line, append new point
+            if (!isClosed && nearest) {
+                points.push({ gx: nearest.gx, gy: nearest.gy });
+                playSnapSound();
+                if (points.length >= 3) {
+                    // friendly tip
+                }
+                redraw();
+            }
+        }
+
+        function handlePointerMove(e) {
+            currentMousePos = getMousePos(e);
+            hoverPin = findNearestPin(currentMousePos.x, currentMousePos.y);
+
+            if (draggingIndex !== -1 && hoverPin) {
+                // Move dragged vertex to hovered pin if not occupied
+                const isOccupied = points.some((p, idx) => idx !== draggingIndex && Math.abs(p.gx - hoverPin.gx) < 0.01 && Math.abs(p.gy - hoverPin.gy) < 0.01);
+                if (!isOccupied) {
+                    if (points[draggingIndex].gx !== hoverPin.gx || points[draggingIndex].gy !== hoverPin.gy) {
+                        playSnapSound();
+                    }
+                    points[draggingIndex] = { gx: hoverPin.gx, gy: hoverPin.gy };
+                }
+            }
+
+            redraw();
+        }
+
+        function handlePointerUp() {
+            if (draggingIndex !== -1) {
+                draggingIndex = -1;
+                showToast("Vertice posizionato", "fa-thumbtack");
+            }
+            redraw();
+        }
+
+        function handleDoubleClick(e) {
+            const pos = getMousePos(e);
+            const nearest = findNearestPin(pos.x, pos.y);
+            if (nearest) {
+                const existingIdx = points.findIndex(p => Math.abs(p.gx - nearest.gx) < 0.01 && Math.abs(p.gy - nearest.gy) < 0.01);
+                if (existingIdx !== -1 && points.length > 3) {
+                    points.splice(existingIdx, 1);
+                    playSnapSound();
+                    showToast("Vertice Rimosso", "fa-trash");
+                    redraw();
+                } else if (existingIdx !== -1 && points.length <= 3) {
+                    showToast("Servono almeno 3 vertici per un poligono!", "fa-triangle-exclamation");
+                }
+            }
+        }
+
+        function findNearestSegment(px, py, maxDist = 20) {
+            for (let i = 0; i < points.length; i++) {
+                const pA = gridToPixel(points[i].gx, points[i].gy);
+                const pB = gridToPixel(points[(i + 1) % points.length].gx, points[(i + 1) % points.length].gy);
+
+                const dist = distToSegment({ x: px, y: py }, pA, pB);
+                if (dist < maxDist) {
+                    return i;
+                }
+            }
+            return -1;
+        }
+
+        function distToSegment(p, v, w) {
+            function sqr(x) { return x * x }
+            function dist2(v, w) { return sqr(v.x - w.x) + sqr(v.y - w.y) }
+            const l2 = dist2(v, w);
+            if (l2 === 0) return Math.hypot(p.x - v.x, p.y - v.y);
+            let t = ((p.x - v.x) * (w.x - v.x) + (p.y - v.y) * (w.y - v.y)) / l2;
+            t = Math.max(0, Math.min(1, t));
+            return Math.hypot(p.x - (v.x + t * (w.x - v.x)), p.y - (v.y + t * (w.y - v.y)));
+        }
+
+        // --- BUTTON CONTROLS & STATE ACTIONS ---
+
+        function toggleClosePolygon() {
+            if (points.length < 3) {
+                showToast("Posiziona almeno 3 vertici prima di chiudere!", "fa-triangle-exclamation");
+                return;
+            }
+            isClosed = !isClosed;
+            playSnapSound();
+            showToast(isClosed ? "Poligono Chiuso!" : "Poligono Aperto", isClosed ? "fa-lock" : "fa-lock-open");
+            redraw();
+        }
+
+        function undoLastPoint() {
+            if (points.length > 0) {
+                points.pop();
+                if (points.length < 3) isClosed = false;
+                playSnapSound();
+                redraw();
+            }
+        }
+
+        function resetBoard() {
+            points = [];
+            isClosed = false;
+            draggingIndex = -1;
+            playSnapSound();
+            showToast("Geopiano Ripulito", "fa-rotate-left");
+            redraw();
+        }
+
+        function setGridSize(size, type) {
+            gridSize = size;
+            gridType = type;
+            
+            // Update active styles for grid buttons
+            document.getElementById('grid-5').className = size === 5 && type === 'square' ? "px-2.5 py-1 text-xs font-bold rounded-lg bg-white text-emerald-800 shadow-sm transition-all" : "px-2.5 py-1 text-xs font-bold rounded-lg hover:bg-emerald-500/50 text-white transition-all";
+            document.getElementById('grid-8').className = size === 8 && type === 'square' ? "px-2.5 py-1 text-xs font-bold rounded-lg bg-white text-emerald-800 shadow-sm transition-all" : "px-2.5 py-1 text-xs font-bold rounded-lg hover:bg-emerald-500/50 text-white transition-all";
+            document.getElementById('grid-iso').className = type === 'isometric' ? "px-2.5 py-1 text-xs font-bold rounded-lg bg-white text-emerald-800 shadow-sm transition-all" : "px-2.5 py-1 text-xs font-bold rounded-lg hover:bg-emerald-500/50 text-white transition-all";
+
+            resetBoard();
+            computePins();
+            redraw();
+        }
+
+        function setColor(hex) {
+            currentColor = hex;
+            playSnapSound();
+            redraw();
+        }
+
+        function switchTab(tab) {
+            activeTab = tab;
+            const tabFree = document.getElementById('tab-free');
+            const tabChallenge = document.getElementById('tab-challenge');
+            const challengeBox = document.getElementById('challenge-box');
+
+            if (tab === 'free') {
+                tabFree.className = "flex-1 py-2 px-3 rounded-xl font-bold text-xs sm:text-sm text-center transition-all bg-emerald-600 text-white shadow-sm";
+                tabChallenge.className = "flex-1 py-2 px-3 rounded-xl font-bold text-xs sm:text-sm text-center transition-all text-slate-600 hover:bg-slate-100";
+                challengeBox.classList.add('hidden');
+            } else {
+                tabChallenge.className = "flex-1 py-2 px-3 rounded-xl font-bold text-xs sm:text-sm text-center transition-all bg-amber-500 text-white shadow-sm";
+                tabFree.className = "flex-1 py-2 px-3 rounded-xl font-bold text-xs sm:text-sm text-center transition-all text-slate-600 hover:bg-slate-100";
+                challengeBox.classList.remove('hidden');
+                drawRandomChallenge();
+            }
+        }
+
+        function showToast(msg, icon = 'fa-circle-info') {
+            const toast = document.getElementById('feedback-toast');
+            const toastMsg = document.getElementById('toast-message');
+            const toastIcon = document.getElementById('toast-icon');
+
+            toastMsg.textContent = msg;
+            toastIcon.className = `fa-solid ${icon} text-emerald-400 text-base`;
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            clearTimeout(window.toastTimer);
+            window.toastTimer = setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 2500);
+        }
+
+        // --- CARTE SFIDA (CHALLENGE CARDS FOR CLASS ACTIVITIES) ---
+
+        const challenges = [
+            {
+                title: "Costruisci un Triangolo",
+                desc: "Crea un poligono chiuso formato da esattamente 3 lati e 3 vertici.",
+                check: (analysis) => isClosed && analysis.isValidPolygon && analysis.sides === 3
+            },
+            {
+                title: "Rettangolo con Angoli Retti",
+                desc: "Costruisci un quadrilatero (4 lati) con tutti e 4 gli angoli retti (90°).",
+                check: (analysis) => isClosed && analysis.isValidPolygon && analysis.sides === 4 && analysis.rightAnglesCount === 4
+            },
+            {
+                title: "Il Pentagono!",
+                desc: "Trasforma la figura in un Pentagono: deve avere esattamente 5 lati e 5 vertici non intrecciati.",
+                check: (analysis) => isClosed && analysis.isValidPolygon && analysis.sides === 5
+            },
+            {
+                title: "Perimetro Pari a 8",
+                desc: "Crea un poligono chiuso che abbia un perimetro totale pari a 8 unità di griglia.",
+                check: (analysis) => isClosed && analysis.isValidPolygon && Math.abs(analysis.perimeter - 8) < 0.1
+            },
+            {
+                title: "Trova l'Errore (Figura Intrecciata)",
+                desc: "Crea prima una linea intrecciata (non valida) e poi risistemala per renderla un vero Esagono (6 lati).",
+                check: (analysis) => isClosed && analysis.isValidPolygon && analysis.sides === 6
+            },
+            {
+                title: "L'Ottagono (8 Lati e 8 Vertici)",
+                desc: "Disegna un poligono chiuso formato da esattamente 8 lati e 8 vertici non intrecciati.",
+                check: (analysis) => isClosed && analysis.isValidPolygon && analysis.sides === 8
+            }
+        ];
+
+        let currentChallengeIdx = -1;
+
+        function drawRandomChallenge() {
+            let nextIdx;
+            if (challenges.length > 1) {
+                do {
+                    nextIdx = Math.floor(Math.random() * challenges.length);
+                } while (nextIdx === currentChallengeIdx);
+            } else {
+                nextIdx = 0;
+            }
+            loadChallenge(nextIdx);
+            showToast("Nuova sfida sorteggiata!", "fa-dice");
+        }
+
+        function loadChallenge(idx) {
+            currentChallengeIdx = idx;
+            document.getElementById('challenge-title').textContent = challenges[idx].title;
+            document.getElementById('challenge-desc').textContent = challenges[idx].desc;
+            document.getElementById('challenge-result').textContent = "";
+        }
+
+        function checkChallenge() {
+            const analysis = analyzePolygon();
+            const resultSpan = document.getElementById('challenge-result');
+            const current = challenges[currentChallengeIdx];
+
+            if (current.check(analysis)) {
+                resultSpan.textContent = "Bravissimo! Sfida Superata! 🎉";
+                resultSpan.className = "text-xs font-bold text-emerald-600";
+                playSuccessSound();
+                showToast("Ottimo lavoro! Sfida completata!", "fa-trophy");
+            } else {
+                resultSpan.textContent = "Non ancora. Riprova! 💡";
+                resultSpan.className = "text-xs font-bold text-amber-700";
+                showToast("Controlla i dettagli della figura!", "fa-lightbulb");
+            }
+        }
+
+        // --- INITIALIZATION ---
+        window.addEventListener('load', () => {
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+        });
+    </script>
+</body>
+</html>
